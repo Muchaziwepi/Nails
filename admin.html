@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nail Studio Admin</title>
+<style>body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:16px;background:#fff8f8;color:#3a1d37}
+section{background:#fff;border:1px solid #ecd3dc;border-radius:14px;padding:16px;margin-bottom:16px}h2{margin-top:0}
+input,button{font:inherit;padding:8px 10px;margin:4px 4px 4px 0;border-radius:8px;border:1px solid #ecd3dc}button{background:#c93a6b;color:#fff;border:0;cursor:pointer}
+.row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid #f1e3e8}.row button{background:#7d6379}
+img{width:60px;height:60px;object-fit:cover;border-radius:8px}</style></head>
+<body>
+<h1>Admin</h1>
+<section id="login"><h2>Sign in</h2><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password"><button id="in">Sign in</button> <span id="err"></span></section>
+<div id="app" hidden>
+<button id="out">Sign out</button>
+<section><h2>Bookings</h2><div id="bk"></div></section>
+<section><h2>Days I'm not free</h2><input id="bd" type="date"><button id="addbd">Block day</button><div id="bl"></div></section>
+<section><h2>Nail colours</h2><input id="cn" placeholder="Colour name"><input id="ch" type="color" value="#c93a6b"><button id="addc">Add colour</button><div id="cl"></div></section>
+<section><h2>Design photos</h2><input id="cap" placeholder="Caption"><input id="file" type="file" accept="image/*"><button id="addp">Upload photo</button><div id="pl"></div></section>
+</div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,doc,setDoc,addDoc,deleteDoc,updateDoc,onSnapshot,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {firebaseConfig} from "./firebase-config.js";
+const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app), $ = id => document.getElementById(id);
+const esc = t => String(t||"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+$("in").onclick = () => signInWithEmailAndPassword(auth,$("em").value,$("pw").value).catch(() => $("err").textContent = "Wrong email or password");
+$("out").onclick = () => signOut(auth);
+let started = false;
+onAuthStateChanged(auth, u => { $("login").hidden = !!u; $("app").hidden = !u; if(u && !started){ started = true; start(); } });
+const list = (name, el, fn) => onSnapshot(collection(db,name), s => { el.innerHTML = s.docs.map(d => `<div class="row">${fn(d.data(), d.id)}</div>`).join("") || "<p>Nothing yet.</p>"; });
+function start(){
+  list("bookings", $("bk"), (b,id) => `<div><b>${esc(b.name)}</b> (${esc(b.status)})<br>${esc(b.date)} ${esc(b.slot)}<br>${esc((b.services||[]).join(", "))} = ₹${b.total}<br>${esc(b.notes)}</div><div><button data-a="ok" data-id="${id}">Confirm</button><button data-a="del" data-id="${id}">Delete</button></div>`);
+  list("blockedDates", $("bl"), (b,id) => `<span>${id}</span><button data-a="delbd" data-id="${id}">Unblock</button>`);
+  list("colors", $("cl"), (c,id) => `<span><span style="display:inline-block;width:16px;height:16px;background:${esc(c.hex)}"></span> ${esc(c.name)}</span><button data-a="delc" data-id="${id}">Remove</button>`);
+  list("designs", $("pl"), (p,id) => `<span><img src="${p.image}" alt=""> ${esc(p.caption)}</span><button data-a="delp" data-id="${id}">Remove</button>`);
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button[data-a]"); if(!b) return; const id = b.dataset.id;
+  ({ ok: () => updateDoc(doc(db,"bookings",id),{status:"confirmed"}), del: () => deleteDoc(doc(db,"bookings",id)),
+     delbd: () => deleteDoc(doc(db,"blockedDates",id)), delc: () => deleteDoc(doc(db,"colors",id)), delp: () => deleteDoc(doc(db,"designs",id)) })[b.dataset.a]();
+});
+$("addbd").onclick = () => { if($("bd").value) setDoc(doc(db,"blockedDates",$("bd").value),{}); };
+$("addc").onclick = () => { if($("cn").value.trim()) addDoc(collection(db,"colors"),{name:$("cn").value.trim(),hex:$("ch").value}); $("cn").value=""; };
+// Photos are shrunk in the browser and saved as text in Firestore, so no paid Storage plan is needed
+$("addp").onclick = () => {
+  const f = $("file").files[0]; if(!f) return;
+  const img = new Image(); img.onload = async () => {
+    const s = Math.min(1, 800/Math.max(img.width,img.height)), c = document.createElement("canvas");
+    c.width = img.width*s; c.height = img.height*s; c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    await addDoc(collection(db,"designs"),{image:c.toDataURL("image/jpeg",0.7),caption:$("cap").value.trim(),createdAt:serverTimestamp()});
+    $("cap").value=""; $("file").value="";
+  }; img.src = URL.createObjectURL(f);
+};
+</script></body></html>

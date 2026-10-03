@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nail Studio Booking</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff8f8;--surface:#ffffff;--ink:#3a1d37;--muted:#7d6379;--accent:#c93a6b;--accent-ink:#fff;--soft:#fbe3ea;--line:#ecd3dc;--booked:#e7dde3;--ok:#1f7a55;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1020;--surface:#2a1a2d;--ink:#fbe9ef;--muted:#c3a6b8;--accent:#ee6a98;--accent-ink:#2a0f1c;--soft:#3d2440;--line:#4b3050;--booked:#3a2a3d;--ok:#6fd1a4}}
+:root[data-theme="dark"]{--bg:#1d1020;--surface:#2a1a2d;--ink:#fbe9ef;--muted:#c3a6b8;--accent:#ee6a98;--accent-ink:#2a0f1c;--soft:#3d2440;--line:#4b3050;--booked:#3a2a3d;--ok:#6fd1a4}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,sans-serif;line-height:1.5}
+h1,h2{font-family:"Bricolage Grotesque",Georgia,sans-serif;margin:0;line-height:1.1}
+main{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+.hero{padding:36px 0 24px}
+.hero h1{font-size:clamp(2.2rem,7vw,4rem);font-weight:800;max-width:14ch}
+.hero p{color:var(--muted);max-width:46ch;margin:12px 0 0}
+.grid{display:grid;gap:20px;grid-template-columns:1fr}
+@media(min-width:820px){.grid{grid-template-columns:1fr 1fr}}
+section{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px}
+h2{font-size:1.4rem;margin-bottom:14px}
+.svc{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer}
+.svc:has(input:checked){background:var(--soft);border-color:var(--accent)}
+.svc input{accent-color:var(--accent);width:18px;height:18px}
+.svc span.n{flex:1}.svc small{color:var(--muted);display:block}
+.svc b{white-space:nowrap}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-head button{background:var(--soft);color:var(--ink);border:0;border-radius:10px;width:38px;height:38px;font-size:1.1rem;cursor:pointer}
+.cal-head strong{font-family:"Bricolage Grotesque",sans-serif;font-size:1.15rem}
+.dow,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.dow{color:var(--muted);font-size:.8rem;margin-bottom:4px}
+.day{aspect-ratio:1;border:1px solid transparent;border-radius:10px;background:var(--soft);color:var(--ink);font:inherit;cursor:pointer}
+.day.off{background:var(--booked);color:var(--muted);cursor:not-allowed;text-decoration:line-through}
+.day.sel{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.day.blank{background:none;cursor:default}
+.day:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.85rem;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:5px}
+label.f{display:block;margin-top:12px;font-weight:500}
+input[type=text],select,textarea{width:100%;margin-top:4px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+.sum{margin-top:16px;padding:14px;border-radius:12px;background:var(--soft)}
+.sum .tot{font-family:"Bricolage Grotesque",sans-serif;font-size:1.8rem;font-weight:800}
+.btn{width:100%;margin-top:14px;padding:14px;border:0;border-radius:12px;background:var(--accent);color:var(--accent-ink);font:600 1rem Figtree,sans-serif;cursor:pointer}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.msg{margin-top:10px;font-size:.9rem;color:var(--muted)}
+.err{color:#c0392b}
+footer{margin-top:24px;color:var(--muted);font-size:.85rem}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.gal figure{margin:0}.gal img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px}.gal figcaption{font-size:.8rem;color:var(--muted)}
+.sw{display:flex;flex-wrap:wrap;gap:10px}.sw button{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:6px 12px 6px 6px;font:inherit;cursor:pointer}.sw button[aria-pressed=true]{border-color:var(--accent);background:var(--soft)}.sw i{width:24px;height:24px;border-radius:50%;border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<main>
+<div class="hero">
+  <h1>Fresh nails, booked in minutes</h1>
+  <p>Pick your services, choose a free day, and send your request straight to my WhatsApp. I'll confirm your slot there.</p>
+</div>
+
+<div class="grid">
+  <section aria-labelledby="h-svc">
+    <h2 id="h-svc">1. Choose services</h2>
+    <div id="services"></div>
+    <p class="msg">Prices are starting estimates in rupees. Detailed designs may cost extra.</p>
+  </section>
+
+  <section aria-labelledby="h-cal">
+    <h2 id="h-cal">2. Pick a day</h2>
+    <div class="cal-head">
+      <button id="prev" aria-label="Previous month">&#8249;</button>
+      <strong id="monthLabel"></strong>
+      <button id="next" aria-label="Next month">&#8250;</button>
+    </div>
+    <div class="dow" id="dow"></div>
+    <div class="days" id="days"></div>
+    <div class="legend">
+      <span><i style="background:var(--soft)"></i>Available</span>
+      <span><i style="background:var(--booked)"></i>Booked / closed</span>
+      <span><i style="background:var(--accent)"></i>Your pick</span>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-det" style="grid-column:1/-1">
+    <h2 id="h-det">3. Your details</h2>
+    <div style="display:grid;gap:0 20px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+      <label class="f">Your name<input type="text" id="name" autocomplete="name"></label>
+      <label class="f">Time slot<select id="slot"></select></label>
+    </div>
+    <label class="f">Design ideas or notes (optional)<textarea id="notes" rows="2"></textarea></label>
+    <div class="sum">
+      <div id="sumLines">No services selected yet.</div>
+      <div class="tot" id="total">₹0</div>
+    </div>
+    <button class="btn" id="book" disabled>Send booking on WhatsApp</button>
+    <p class="msg" id="status" role="status"></p>
+  </section>
+</div>
+<footer>Opening hours and booked days are updated by the nail tech. Booking is confirmed only after I reply on WhatsApp.</footer>
+</main>
+
+<script>
+/* ===== EDIT THESE SETTINGS ===== */
+const CONFIG = {
+  whatsappNumber: "27832469896",       // country code + number, digits only
+  businessName: "Nail Studio",          // put your business name here
+  closedWeekdays: [0],                  // 0=Sunday, 1=Monday ... 6=Saturday
+  bookedDates: ["2026-10-10","2026-10-14"], // full days you are NOT free, format YYYY-MM-DD
+  slots: ["10:00 AM","12:00 PM","2:00 PM","4:00 PM","6:00 PM"],
+  services: [
+    ["Basic manicure",325],["Basic pedicure",425],["Gel polish (hands)",400],
+    ["Gel polish removal",125],["Press-on custom set",700],["Acrylic full set",1100],
+    ["Acrylic/gel refill",650],["Soft gel extensions",1050],["Extension removal",225],
+    ["Simple nail art (per nail)",35],["Full-set art (detailed)",350],
+    ["Chrome / cat-eye / French add-on",150]
+  ]
+};
+/* ================================= */
+
+const $ = id => document.getElementById(id);
+const inr = n => "₹" + n.toLocaleString("en-IN");
+const pad = n => String(n).padStart(2,"0");
+const key = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const today = new Date(); today.setHours(0,0,0,0);
+let view = new Date(today.getFullYear(), today.getMonth(), 1);
+let picked = null;
+
+// services
+$("services").innerHTML = CONFIG.services.map(([n,p],i) =>
+  `<label class="svc"><input type="checkbox" data-i="${i}"><span class="n">${n}</span><b>${inr(p)}</b></label>`).join("");
+$("slot").innerHTML = CONFIG.slots.map(s => `<option>${s}</option>`).join("");
+$("dow").innerHTML = ["Su","Mo","Tu","We","Th","Fr","Sa"].map(d => `<div>${d}</div>`).join("");
+
+function chosen(){ return [...document.querySelectorAll("#services input:checked")].map(c => CONFIG.services[+c.dataset.i]); }
+
+function update(){
+  const c = chosen(), total = c.reduce((s,x)=>s+x[1],0);
+  $("sumLines").innerHTML = c.length ? c.map(x => `${x[0]}: ${inr(x[1])}`).join("<br>") : "No services selected yet.";
+  $("total").textContent = inr(total);
+  $("book").disabled = !(c.length && picked);
+}
+
+function isOff(d){
+  return d < today || CONFIG.closedWeekdays.includes(d.getDay()) || CONFIG.bookedDates.includes(key(d));
+}
+
+function render(){
+  $("monthLabel").textContent = view.toLocaleDateString("en-IN",{month:"long",year:"numeric"});
+  const first = view.getDay(), n = new Date(view.getFullYear(), view.getMonth()+1, 0).getDate();
+  let h = "";
+  for(let i=0;i<first;i++) h += '<div class="day blank"></div>';
+  for(let d=1; d<=n; d++){
+    const dt = new Date(view.getFullYear(), view.getMonth(), d), off = isOff(dt), sel = picked && key(dt)===picked;
+    h += `<button class="day${off?" off":""}${sel?" sel":""}" data-k="${key(dt)}" ${off?'disabled aria-label="'+d+' unavailable"':''} aria-pressed="${!!sel}">${d}</button>`;
+  }
+  $("days").innerHTML = h;
+  $("prev").disabled = view <= new Date(today.getFullYear(), today.getMonth(), 1);
+}
+
+$("days").addEventListener("click", e => {
+  const b = e.target.closest("button.day"); if(!b || b.disabled) return;
+  picked = b.dataset.k; render(); update();
+});
+$("prev").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()-1, 1); render(); };
+$("next").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()+1, 1); render(); };
+$("services").addEventListener("change", update);
+
+$("book").onclick = () => {
+  const st = $("status"), name = $("name").value.trim();
+  if(!name){ st.className="msg err"; st.textContent="Please enter your name."; $("name").focus(); return; }
+  if(!/^\d{10,15}$/.test(CONFIG.whatsappNumber)){
+    st.className="msg err"; st.textContent="The WhatsApp number has not been set yet. Please contact the nail tech directly."; return;
+  }
+  const c = chosen(), total = c.reduce((s,x)=>s+x[1],0);
+  const date = new Date(picked+"T00:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const text = `Hi ${CONFIG.businessName}! I'd like to book:\n\n`+
+    `Name: ${name}\nDate: ${date}\nTime: ${$("slot").value}\n\nServices:\n`+
+    c.map(x => `- ${x[0]} (${inr(x[1])})`).join("\n")+
+    `\n\nEstimated total: ${inr(total)}`+
+    ($("notes").value.trim() ? `\nNotes: ${$("notes").value.trim()}` : "")+
+    `\n\nPlease confirm if this slot is free. Thank you!`;
+  st.className="msg"; st.textContent="Opening WhatsApp. Send the message to finish your request.";
+  window.open("https://wa.me/"+CONFIG.whatsappNumber+"?text="+encodeURIComponent(text), "_blank", "noopener");
+};
+
+render(); update();
+</script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,addDoc,onSnapshot,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {firebaseConfig} from "./firebase-config.js";
+const db = getFirestore(initializeApp(firebaseConfig));
+const foot = document.querySelector("footer");
+const mk = (id,h) => { const e = document.createElement("section"); e.id = id; e.style.marginTop = "20px"; e.innerHTML = h; foot.before(e); return e.lastElementChild; };
+const gal = mk("gallery", '<h2>My work</h2><div class="gal"></div>');
+const sw = mk("colours", '<h2>Nail colours</h2><div class="sw"></div>');
+const esc = t => String(t||"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+onSnapshot(collection(db,"blockedDates"), snap => { CONFIG.bookedDates = snap.docs.map(d => d.id); render(); });
+onSnapshot(collection(db,"designs"), snap => {
+  gal.innerHTML = snap.docs.map(d => d.data()).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0))
+    .map(x => `<figure><img src="${x.image}" alt="${esc(x.caption)}" loading="lazy"><figcaption>${esc(x.caption)}</figcaption></figure>`).join("") || '<p class="msg">Photos coming soon.</p>';
+});
+const picks = new Set();
+onSnapshot(collection(db,"colors"), snap => {
+  sw.innerHTML = snap.docs.map(d => d.data()).map(x => `<button aria-pressed="${picks.has(x.name)}" data-n="${esc(x.name)}"><i style="background:${esc(x.hex)}"></i>${esc(x.name)}</button>`).join("") || '<p class="msg">Colours coming soon.</p>';
+});
+sw.addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  const n = b.dataset.n; picks.has(n) ? picks.delete(n) : picks.add(n);
+  b.setAttribute("aria-pressed", picks.has(n));
+  const notes = $("notes"); notes.value = notes.value.replace(/^Colours: .*\n?/, "");
+  if(picks.size) notes.value = "Colours: " + [...picks].join(", ") + "\n" + notes.value;
+});
+$("book").addEventListener("click", async () => {
+  const name = $("name").value.trim(); if(!name || !picked || !chosen().length) return;
+  try { await addDoc(collection(db,"bookings"), { name, date: picked, slot: $("slot").value,
+    services: chosen().map(x => x[0]), total: chosen().reduce((s,x)=>s+x[1],0),
+    notes: $("notes").value.trim(), status: "new", createdAt: serverTimestamp() }); } catch(e) { console.error(e); }
+});
+</script>
+</body>
+</html>
